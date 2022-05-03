@@ -14,7 +14,7 @@ app.listen(port, () => {
 
 // 1 Movie Response
 // Require the data file
-const movieData = require("/Users/apple/LTUC/Express_Folder/Movies-Library/Movie Data/data.json");
+const movieData = require('./Movie_Data/data.json');
 //Calling the method
 app.get('/',homeResponse)
 
@@ -42,8 +42,26 @@ function Movie(title, poster_path, overview) {
 
 
 // 2 Favorite page response
+app.get('/favorite',favoritePage);
 function favoritePage(req,res){
 res.send('Welcome to Favorite Page');
 }
 
-app.get('/favorite',favoritePage);
+
+
+// 3. handling the 404 error
+app.get('*', errorHandler)
+function errorHandler(req, res){
+  if(res.status(404)){
+  res.status(404).send({
+    "status": 404,
+    "responseText": 'page not found error'
+  });
+}
+else if(res.status(500)){
+  res.status(500).send({
+    "status": 500,
+    "responseText": 'Sorry, something went wrong'
+  });
+}
+}
