@@ -1,8 +1,8 @@
-# Movies-Library - v1.0.0
+# Movies-Library - v2.0.0
 
 **Author Name**: Lama Radwan
 
-## WRRC
+## The Updated WRRC 
 ![WRRC Image](WRRC.png)
 
 ## Overview
@@ -19,6 +19,12 @@
 <!-- What are the features included in you app -->
 1. A response for the home page it's the default
 2. A response for the favorite page
+3. A handler for 404 and 500 errors
+4. A handler for the trending movies
+5. A search api for movies
+6. A handler for top rated movies
+7. A handler for the upcoming movies
+
 
 * What observations or questions do you have about what you’ve learned so far?
 
@@ -26,4 +32,4 @@ The teaching team is doing a great work
 
 * How long did it take you to complete this assignment? And, before you started, how long did you think it would take you to complete this assignment?
 
-I thought it will take 2 hours and it took me 2 hours
+I thought it will take 3 hours and it took me 2 hours

@@ -6,6 +6,18 @@ const express = require('express')
 const app = express()
 const port = 3000;
 
+//using the cors
+const cors = require('cors');
+app.use(cors());
+
+//using axios
+const axios = require('axios').default;
+
+//API key definition
+require('dotenv').config()
+let apiKey = process.env.API_KEY
+
+
 //http://localhost:port/
 //3. Check if the server is listening to the defined port
 app.listen(port, () => {
@@ -48,8 +60,110 @@ res.send('Welcome to Favorite Page');
 }
 
 
+// let apiKey = '34b8cbc4250b99e802ce858d4cb64a12'
+//4. Getting the trending movies
+app.get('/trending',trendingHandler)
+function trendingHandler(req,res){
+let url = `https://api.themoviedb.org/3/trending/movie/week?api_key=${apiKey}`
+axios.get(url)
+.then((result)=>{
+  let movie = result.data.results.map((element)=>{
+    return new Trendingmovie(element.id, element.title, element.release_date, element.poster_path, element.overview)
+  })
+  res.json(movie);
+})
+.catch((error)=>{
+  console.log(error)
+  res.send('error in getting data')
+})
+}
 
-// 3. handling the 404 error
+//A Constructor for the trending movies
+function Trendingmovie(id, title, release_date, poster_path, overview) {
+  this.id = id;
+  this.title = title;
+  this.release_date = release_date;
+  this.poster_path = poster_path;
+  this.overview = overview
+}
+
+//5. Search for a movie by name
+app.get('/search',searchMovieHandler)
+function searchMovieHandler(req,res){
+  let movie = req.query.movie
+  let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${movie}`
+  axios.get(url)
+  .then((result)=>{
+    console.log(result.data.results);
+    res.send(result.data)
+  })
+  .catch((error)=>{
+    console.log(error);
+    res.send('Error in getting data from api')
+  })
+}
+
+
+//6. The additional route 1 -- The top rated movies with the following details
+// 1. title
+// 2. vote average
+app.get('/topRated',topRatedHandler)
+function topRatedHandler(req,res){
+  let url =`https://api.themoviedb.org/3/movie/top_rated?api_key=${apiKey}`
+  axios.get(url)
+  .then((result)=>{
+    let topRated = result.data.results.map((element)=>{
+      return new TopRated(element.title, element.vote_average);
+    })
+    res.json(topRated)
+  })
+  .catch((error)=>{
+    console.log(error);
+    res.send('Error in getting data from api')
+  })
+}
+
+//A Constructor for top rated movies
+function TopRated(title, vote_average){
+  this.title = title;
+  this.vote_average = vote_average;
+}
+
+// 7. The additional route 2 -- Getting the upcoming movies with the following details: 
+// 1. title
+// 2. original language
+// 3. overview
+// 4. popularity
+
+//A Constructor for the Upcoming movies
+function UpcomingMovies(title, original_language, overview, popularity){
+  this.title = title;
+  this.original_language = original_language;
+  this.overview = overview;
+  this.popularity = popularity;
+}
+
+// handling the upcoming movies function
+app.get('/upcomingMovies',upcomingMoviesHandler)
+function upcomingMoviesHandler(req,res){
+  let url = `https://api.themoviedb.org/3/movie/upcoming?api_key=${apiKey}`
+  axios.get(url)
+  .then((result)=>{
+    console.log(result.data.results)
+    let upcoming = result.data.results.map((element)=>{
+      return new UpcomingMovies(element.title, element.original_language, element.overview, element.popularity)
+    })
+    res.json(upcoming);
+  })
+  .catch((error)=>{
+    console.log(error)
+    res.send('Error in getting data from api')
+  })
+}
+
+
+
+// 3. handling the 404  and 500 errors
 app.get('*', errorHandler)
 function errorHandler(req, res){
   if(res.status(404)){
