@@ -16,13 +16,7 @@ const axios = require('axios').default;
 //API key definition
 require('dotenv').config()
 let apiKey = process.env.API_KEY
-
-
-//http://localhost:port/
-//3. Check if the server is listening to the defined port
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+//apiKey = 34b8cbc4250b99e802ce858d4cb64a12
 
 // 1 Movie Response
 // Require the data file
@@ -161,9 +155,56 @@ function upcomingMoviesHandler(req,res){
   })
 }
 
+//------------------------------------- The SQL Part -------------------------------------
+//For Body Parser using
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+//For using the pg tool
+let url = "postgres://apple:1996@localhost:5432/movies";
+const { Client } = require('pg');
+const client = new Client(url);
+
+//Routs
+app.post('/addMovie', postHandler)
+app.get('/getMovies',getHandler)
+
+//Functions
+function postHandler(req,res){
+  
+  let sql = `INSERT INTO addedmovies(title,year,personalComments) VALUES($1, $2, $3) RETURNING *;`;
+  let {title,year,personalComments} = req.body; //destructuring
+  let values = [title,year,personalComments]; 
+  
+  client.query(sql,values).then(result =>{
+      console.log(result)
+      return res.status(201).json(result.rows)
+  }).catch((error)=>{
+      console.log(error)
+  })
+  }
+
+  function getHandler(req, res) {
+    let sql = `SELECT * FROM addedmovies ;`;
+    client.query(sql).then((result)=>{
+        console.log(result);
+        res.json(result.rows);
+    }).catch((error) => {
+        console.log(error)
+    })
+ }
 
 
-// 3. handling the 404  and 500 errors
+//http://localhost:port/
+// Check if the server is listening to the defined port
+client.connect().then(() => {
+  app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+  })
+})
+
+// handling the 404  and 500 errors
 app.get('*', errorHandler)
 function errorHandler(req, res){
   if(res.status(404)){
