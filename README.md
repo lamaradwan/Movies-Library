@@ -1,4 +1,4 @@
-# Movies-Library - v2.0.0
+# Movies-Library - v3.0.0
 
 **Author Name**: Lama Radwan
 
@@ -24,6 +24,8 @@
 5. A search api for movies
 6. A handler for top rated movies
 7. A handler for the upcoming movies
+8. PSQL Database handler to add a movie
+9. PSQL Database handler to get the added movies
 
 
 * What observations or questions do you have about what you’ve learned so far?
@@ -32,4 +34,4 @@ The teaching team is doing a great work
 
 * How long did it take you to complete this assignment? And, before you started, how long did you think it would take you to complete this assignment?
 
-I thought it will take 3 hours and it took me 2 hours
+I thought it will take 3 hours and it took me 4 hours
