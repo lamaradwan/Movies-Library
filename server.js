@@ -155,28 +155,29 @@ function upcomingMoviesHandler(req,res){
   })
 }
 
-//------------------------------------- The SQL Part -------------------------------------
+//--------------------------------------- The DATABASE Part -------------------------------------------
 //For Body Parser using
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //For using the pg tool
-let url = "postgres://apple:1996@localhost:5432/movies";
 const { Client } = require('pg');
-const client = new Client(url);
+const client = new Client(process.env.DATABASE_URL);
 
 //Routs
 app.post('/addMovie', postHandler)
 app.get('/getMovies',getHandler)
+app.put('/UPDATE/:movieID',updateHandler)
+app.delete('/DELETE/:movieID',deleteHandler)
+app.get('/getMovie/:movieID',getSpecificMovieHandler)
+
 
 //Functions
 function postHandler(req,res){
-  
-  let sql = `INSERT INTO addedmovies(title,year,personalComments) VALUES($1, $2, $3) RETURNING *;`;
+  let sql = `INSERT INTO addedmoviesid(title,year,personalComments) VALUES($1, $2, $3) RETURNING *;`;
   let {title,year,personalComments} = req.body; //destructuring
   let values = [title,year,personalComments]; 
-  
   client.query(sql,values).then(result =>{
       console.log(result)
       return res.status(201).json(result.rows)
@@ -185,8 +186,8 @@ function postHandler(req,res){
   })
   }
 
-  function getHandler(req, res) {
-    let sql = `SELECT * FROM addedmovies ;`;
+function getHandler(req, res) {
+    let sql = `SELECT * FROM addedmoviesid;`;
     client.query(sql).then((result)=>{
         console.log(result);
         res.json(result.rows);
@@ -195,8 +196,38 @@ function postHandler(req,res){
     })
  }
 
+function updateHandler(req,res){
+  let id = req.params.movieID;
+  let {title,year,personalComments} = req.body;
+  let values = [title,year,personalComments];
+  let sql = `UPDATE addedmoviesid SET title = $1, year = $2, personalComments = $3 WHERE id = ${id} RETURNING *;`;
+  client.query(sql, values).then(result=>{
+    res.json(result.rows);
+  }).catch(error =>{
+    console.log(error);
+  })
+}
 
-//http://localhost:port/
+function deleteHandler(req,res){
+  let id = req.params.movieID;
+  let sql = `DELETE FROM addedmoviesid WHERE id=${id}`
+  client.query(sql).then(result =>{
+    res.send('Movie Deleted Successfully')
+  }).then(error =>{
+    console.log(error)
+  })
+}
+
+function getSpecificMovieHandler(req,res){
+  let id = req.params.movieID;
+  let sql = `SELECT * FROM addedmoviesid WHERE id=${id}`
+  client.query(sql).then(result =>{
+    res.json(result.rows);
+  }).catch(error=>{
+    console.log(error)
+  })
+}
+
 // Check if the server is listening to the defined port
 client.connect().then(() => {
   app.listen(port, () => {
